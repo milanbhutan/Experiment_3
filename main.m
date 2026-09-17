@@ -28,9 +28,15 @@ K = prod(p_k);
 
 H_p = K / Q_p;
 
+[num, den] = tfdata(H_p, 'v');
+
+num = real(num);
+den = real(den);
+
+H_p_norm = tf(num, den);
 
 figure;
-bode(H_p);
+bode(H_p_norm);
 
 
 function total_SE = calcMSE(x, y)
