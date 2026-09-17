@@ -2,7 +2,17 @@ close all;
 
 figure;
 plot(t, vout);
+hold on;
 plot(t, vin);
+s = tf('s');
+
+n = 4;
+R = (1/n)^(1/n);
+
+theta_k = -Rsin()
+
+
+
 
 
 
