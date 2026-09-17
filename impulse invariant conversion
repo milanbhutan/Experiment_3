@@ -1,0 +1,67 @@
+clear
+clc
+
+data = load('iodata.mat');
+
+%% Symbolic variables
+syms s t k z
+
+%% Analog transfer-function coefficients
+numerator = 1.08e15;
+
+denominator = [1, ...
+               1.134e4, ...
+               1.034e8, ...
+               5.013e11, ...
+               1.286e15];
+
+%% Create symbolic and display versions
+Hs = poly2sym(numerator, s) / ...
+     poly2sym(denominator, s);
+
+G_s = tf(numerator, denominator);
+
+disp('Analog transfer function H(s):')
+G_s
+
+%% 1. Inverse Laplace transform: H(s) -> h(t)
+ht = simplify(ilaplace(Hs, s, t));
+
+disp('Analog impulse response h(t):')
+disp(vpa(ht, 6))
+
+%% 2. Obtain sampling frequency from measured data
+t_data = data.t(:);
+
+Ts = median(diff(t_data));
+Fs = 1/Ts;
+
+fprintf('Sampling period: %.8e seconds\n', Ts);
+fprintf('Sampling frequency: %.2f Hz\n', Fs);
+
+%% 3. Sample the impulse response
+hk = simplify(Ts * subs(ht, t, k*Ts));
+
+disp('Digital impulse response h[k]:')
+disp(vpa(hk, 6))
+
+%% 4. Take the Z-transform: h[k] -> H(z)
+Hz = simplify(ztrans(hk, k, z));
+
+%% Convert symbolic H(z) to numerical coefficients
+Hz_numeric = vpa(Hz, 12);
+
+[numZ_symbolic, denZ_symbolic] = numden(Hz_numeric);
+
+numZ = double(sym2poly(expand(numZ_symbolic)));
+denZ = double(sym2poly(expand(denZ_symbolic)));
+
+% Normalize coefficients
+numZ = numZ/denZ(1);
+denZ = denZ/denZ(1);
+
+%% Display digital transfer function cleanly
+G_z = tf(numZ, denZ, Ts);
+
+disp('Digital transfer function H(z):')
+G_z
