@@ -1,80 +1,68 @@
-close all;
+data = load('iodata.mat');
 
-%% Buttersworth Low Pass
+Ts = 1000;
 
-f_c_lp = 1000;
-omega_x = 2 * pi * f_c_lp;
-s_lp = tf('s') / omega_x;
-n_lp = 8;
-R_lp = (1/n_lp)^(1/n_lp);
-theta_k_lp = [];
+%Generate continuous filters
+Cont_Filter;
 
-Q_p_lp = 1;
+% Current filter being used, but will need to use all 8 filters later
+G_z_cheby_impinv = ImpInv(H_LP);
 
-for k = 1:n
-    theta_k_lp(k) = ((2*k-1)*pi)/(2*n_lp);
-end
+G_z_b4th_impinv = ImpInv(H_b4th_lp_norm);
+G_z_b8th_impinv = ImpInv(H_b8th_lp_norm);
 
-p_k_lp = (- R_lp * sin(theta_k_lp)) + (1i * R_lp * cos(theta_k_lp));
+%there is an issue 
+%G_z_bstop_impinv = ImpInv(H_bstop_norm);
 
-for k = 1:n
-    Q_p_lp = Q_p_lp * (s_lp - p_k_lp(k));
-end
+G_z_cheby_bilinear = Bilinear(H_LP, Ts);
+G_z_b4th_bilinear = Bilinear(H_b4th_lp_norm, Ts);
+G_z_b8th_bilinear = Bilinear(H_b8th_lp_norm, Ts);
+G_z_bstop_bilinear = Bilinear(H_bstop_norm, Ts);
 
-K_lp = prod(p_k_lp);
-
-H_p_lp = K_lp / Q_p_lp;
-
-[num, den] = tfdata(H_p_lp, 'v');
-
-num = real(num);
-den = real(den);
-
-H_p_lp_norm = tf(num, den);
-
-figure;
-bode(H_p_lp_norm);
-
-%% Buttersworth Bandstop
-
-w_L = 2 * pi * 1000;
-BW = 2 * pi * 1000;
-w_o = 2 * pi * 1500;
-s_bs = BW * tf('s') /(tf('s')^2omega_o);
-n_lp = 8;
-R_lp = (1/n_lp)^(1/n_lp);
-theta_k_lp = [];
-
-Q_p_lp = 1;
-
-for k = 1:n
-    theta_k_lp(k) = ((2*k-1)*pi)/(2*n_lp);
-end
-
-p_k_lp = (- R_lp * sin(theta_k_lp)) + (1i * R_lp * cos(theta_k_lp));
-
-for k = 1:n
-    Q_p_lp = Q_p_lp * (s_lp - p_k_lp(k));
-end
-
-K_lp = prod(p_k_lp);
-
-H_p_lp = K_lp / Q_p_lp;
-
-[num, den] = tfdata(H_p_lp, 'v');
-
-num = real(num);
-den = real(den);
-
-H_p_lp_norm = tf(num, den);
-
-figure;
-bode(H_p_lp_norm);
+% Extract its numerator and denominator
+[numZ, denZ] = tfdata(G_z_cheby_impinv, 'v');
 
 
-function total_SE = calcMSE(x, y)
+t_data    = data.t(:);
+vin_data  = data.vin(:);
+vout_data = data.vout(:);
 
-  SE =  (x - y).^2;
-  total_SE = sum(SE);
-  
-end
+%% Transfer-function values
+zeta = 0.133;
+wn   = 12.5;
+K    = 6.25;
+
+numerator   = K * wn^2;
+denominator = [1, 2*zeta*wn, wn^2];
+
+G = tf(numerator, denominator);
+
+%% Simulate the output
+t_sim = t_data - t_data(1);
+
+% Step occurs at t = 0 in the displayed measured data
+step_input = double(t_data >= 0);
+
+vout_test = lsim(G, step_input, t_sim);
+vout_data_filtered = filter(numZ, denZ, vout_data);
+%% Plot measured and simulated signals
+figure
+
+plot(t_data, vin_data, 'LineWidth', 1.5)
+hold on
+plot(t_data, vout_data, 'LineWidth', 1.5)
+plot(t_data, vout_data_filtered, 'LineWidth', 1.5)
+plot(t_data, vout_test, '--', 'LineWidth', 2)
+hold off
+
+grid on
+xlabel('Time (s)')
+ylabel('Voltage (V)')
+legend('Measured Vin', 'Measured Vout', ...
+       'Simulated Vout', 'Location', 'best')
+title('Measured and Simulated Output')
+
+%% Total squared error
+SSE = totalSquaredError(vout_data, vout_test);
+
+fprintf('Total squared error: %.6f\n', SSE);

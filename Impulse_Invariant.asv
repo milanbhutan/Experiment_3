@@ -1,31 +1,32 @@
-clear
-clc
+clear;
+clc;
 
 data = load('iodata.mat');
 
+function H_z = ImpInv(H_s)
 %% Symbolic variables
 syms s t k z
 
-%% Analog transfer-function coefficients
-numerator = 1.08e15;
-
-denominator = [1, ...
-    1.134e4, ...
-    1.034e8, ...
-    5.013e11, ...
-    1.286e15];
-
-%% Create symbolic and display versions
-Hs = poly2sym(numerator, s) / ...
-    poly2sym(denominator, s);
-
-G_s = tf(numerator, denominator);
+% %% Analog transfer-function coefficients
+% numerator = 1.08e15;
+% 
+% denominator = [1, ...
+%     1.134e4, ...
+%     1.034e8, ...
+%     5.013e11, ...
+%     1.286e15];
+% 
+% %% Create symbolic and display versions
+% H_s = poly2sym(numerator, s) / ...
+%     poly2sym(denominator, s);
+% 
+% G_s = tf(numerator, denominator);
 
 disp('Analog transfer function H(s):')
-G_s
+H_s
 
 %% 1. Inverse Laplace transform: H(s) -> h(t)
-ht = simplify(ilaplace(Hs, s, t));
+ht = simplify(ilaplace(H_s, s, t));
 
 disp('Analog impulse response h(t):')
 disp(vpa(ht, 6))
@@ -67,3 +68,5 @@ disp('Digital transfer function H(z):')
 G_z
 
 save('impulse_invariant_conversion.mat', 'G_z')
+
+end

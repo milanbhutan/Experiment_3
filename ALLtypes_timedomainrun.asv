@@ -1,14 +1,17 @@
 data = load('iodata.mat');
 
-%Run Impulse_Invariant.m
-Impulse_Invariant;
+Ts = 10000
 
-% Load the saved digital transfer function
-digitalData = load('impulse_invariant_conversion.mat');
-G_z = digitalData.G_z;
+%Run
+Cont_Filter;
+
+G_z_cheby_impinv = ImpInv(H_LP);
+
+G_z_b4th_bilinear = Bilinear(H_b4th_lp_norm, Ts);
+G_z_b8th_bilinear = Bilinear(H_b8th_lp_norm, Ts);
 
 % Extract its numerator and denominator
-[numZ, denZ] = tfdata(G_z, 'v');
+[numZ, denZ] = tfdata(G_z_cheby_impinv, 'v');
 
 
 t_data    = data.t(:);

@@ -9,7 +9,7 @@ analogData  = load('transform_and_plot_prototype.mat');
 digitalData = load('impulse_invariant_conversion.mat');
 
 H_LP = analogData.H_LP;
-G_z  = digitalData.G_z;
+G_z  = ImpInv(H_LP);
 
 % Plot both on the same Bode plot
 figure
