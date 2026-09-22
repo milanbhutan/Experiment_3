@@ -14,7 +14,7 @@ denProto = real(poly(p));  % makes denominator polynomial from poles
 Hproto = tf(numProto,denProto);
 
 % Desired low-pass cutoff
-fc = 1000;                 % <-- replace with your cutoff frequency, Hz
+fc = 600;                 % <-- replace with your cutoff frequency, Hz
 wc = 2*pi*fc;              % lp2lp requires rad/s
 
 % LP-to-LP transformation
@@ -31,3 +31,5 @@ opts.FreqUnits = 'Hz';      % display x-axis in Hz
 opts.MagUnits = 'dB';
 bodeplot(H_LP,opts)
 title('Bode Plot of Chebyshev-I Low-Pass Filter')
+
+save('transform_and_plot_prototype.mat', 'H_LP')
