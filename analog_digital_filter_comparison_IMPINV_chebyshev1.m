@@ -2,6 +2,8 @@ clear
 clc
 close all
 
+transform_and_plot_chev1_prototype;
+
 % Load transfer functions created by the other scripts
 analogData  = load('transform_and_plot_prototype.mat');
 digitalData = load('impulse_invariant_conversion.mat');

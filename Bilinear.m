@@ -12,4 +12,6 @@ sBilinear = (2/T)*(z - 1)/(z + 1);
 
 % Substitute into the analog transfer function
 Hz = simplify(subs(Hs, s, sBilinear));
+
+save('impulse_invariant_conversion.mat', 'G_z')
 end

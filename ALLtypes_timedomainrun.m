@@ -1,4 +1,8 @@
 data = load('iodata.mat');
+
+%Run Impulse_Invariant.m
+Impulse_Invariant;
+
 % Load the saved digital transfer function
 digitalData = load('impulse_invariant_conversion.mat');
 G_z = digitalData.G_z;
