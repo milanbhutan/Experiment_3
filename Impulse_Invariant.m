@@ -10,14 +10,14 @@ syms s t k z
 numerator = 1.08e15;
 
 denominator = [1, ...
-               1.134e4, ...
-               1.034e8, ...
-               5.013e11, ...
-               1.286e15];
+    1.134e4, ...
+    1.034e8, ...
+    5.013e11, ...
+    1.286e15];
 
 %% Create symbolic and display versions
 Hs = poly2sym(numerator, s) / ...
-     poly2sym(denominator, s);
+    poly2sym(denominator, s);
 
 G_s = tf(numerator, denominator);
 
@@ -60,8 +60,10 @@ denZ = double(sym2poly(expand(denZ_symbolic)));
 numZ = numZ/denZ(1);
 denZ = denZ/denZ(1);
 
-%% Display digital transfer function cleanly
+%% Display digital transfer function
 G_z = tf(numZ, denZ, Ts);
 
 disp('Digital transfer function H(z):')
 G_z
+
+save('impulse_invariant_conversion.mat', 'G_z')

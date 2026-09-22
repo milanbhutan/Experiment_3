@@ -1,6 +1,41 @@
 close all;
 
-%% Buttersworth Low Pass
+%% Buttersworth Low Pass, 4th order
+
+f_c_lp = 1000;
+omega_x = 2 * pi * f_c_lp;
+s_lp = tf('s') / omega_x;
+n_lp = 4;
+R_lp = (1/n_lp)^(1/n_lp);
+theta_k_lp = [];
+
+Q_p_lp = 1;
+
+for k = 1:n_lp
+    theta_k_lp(k) = ((2*k-1)*pi)/(2*n_lp);
+end
+
+p_k_lp = (- R_lp * sin(theta_k_lp)) + (1i * R_lp * cos(theta_k_lp));
+
+for k = 1:n_lp
+    Q_p_lp = Q_p_lp * (s_lp - p_k_lp(k));
+end
+
+K_lp = prod(p_k_lp);
+
+H_p_lp = K_lp / Q_p_lp;
+
+[num, den] = tfdata(H_p_lp, 'v');
+
+num = real(num);
+den = real(den);
+
+H_p_lp_norm = tf(num, den);
+
+figure;
+bode(H_p_lp_norm);
+
+%% Buttersworth Low Pass, 8th order
 
 f_c_lp = 1000;
 omega_x = 2 * pi * f_c_lp;
@@ -11,13 +46,13 @@ theta_k_lp = [];
 
 Q_p_lp = 1;
 
-for k = 1:n
+for k = 1:n_lp
     theta_k_lp(k) = ((2*k-1)*pi)/(2*n_lp);
 end
 
 p_k_lp = (- R_lp * sin(theta_k_lp)) + (1i * R_lp * cos(theta_k_lp));
 
-for k = 1:n
+for k = 1:n_lp
     Q_p_lp = Q_p_lp * (s_lp - p_k_lp(k));
 end
 
@@ -47,13 +82,13 @@ theta_k_bs = [];
 
 Q_p_bs = 1;
 
-for k = 1:n
+for k = 1:n_bs
     theta_k_bs(k) = ((2*k-1)*pi)/(2*n_bs);
 end
 
 p_k_bs = (- R_bs * sin(theta_k_bs)) + (1i * R_bs * cos(theta_k_bs));
 
-for k = 1:n
+for k = 1:n_bs
     Q_p_bs = Q_p_bs * (s_bs - p_k_bs(k));
 end
 

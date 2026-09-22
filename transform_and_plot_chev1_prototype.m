@@ -10,12 +10,12 @@ K = 0.693;                 % prototype numerator gain
 
 % Build prototype transfer function from its poles
 numProto = K;
-denProto = real(poly(p));  % makes denominator polynomial from poles
+denProto = real(poly(p));  
 Hproto = tf(numProto,denProto);
 
 % Desired low-pass cutoff
-fc = 600;                 % <-- replace with your cutoff frequency, Hz
-wc = 2*pi*fc;              % lp2lp requires rad/s
+fc = 600;                 
+wc = 2*pi*fc;             
 
 % LP-to-LP transformation
 [numLP,denLP] = lp2lp(numProto,denProto,wc);
@@ -27,7 +27,7 @@ H_LP
 figure
 opts = bodeoptions;
 opts.Grid = 'on';
-opts.FreqUnits = 'Hz';      % display x-axis in Hz
+opts.FreqUnits = 'Hz';     
 opts.MagUnits = 'dB';
 bodeplot(H_LP,opts)
 title('Bode Plot of Chebyshev-I Low-Pass Filter')
